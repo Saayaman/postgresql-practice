@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { Client } = require('pg')
-const { pool } = require('./postgres')
+// const { Client } = require('pg')
+const pool = require('./postgres-config')
 require('dotenv').config();
 
 // const uuidv1 = require('uuid/v1');
@@ -29,25 +29,27 @@ app.get('/api', (req, res) => {
 app.get('/api/books', (req, res) => {
   pool.query('SELECT * FROM books', (error, results) => {
     if (error) {
-      throw error
+      console.log(error);
+      res.status(400).send(error)
     }
-    response.status(200).json(results.rows)
+    res.status(200).json(results.rows)
   })
 })
 
-app.post = (request, response) => {
-  const { author, title } = request.body
+app.post('/api/books', (request, response) => {
+  const title = request.body.title;
+  const author = request.body.author;
   pool.query('INSERT INTO books (author, title) VALUES ($1, $2)', [author, title], error => {
     if (error) {
-      throw error
+      console.log(error);
+      response.status(400).send(error)
     }
     response.status(201).json({ status: 'success', message: 'Book added.' })
   })
-}
-
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
 
 //exporst.<text> part is same as package.json rewrite function
-exports.app = functions.https.onRequest(app)
+// exports.app = functions.https.onRequest(app)
